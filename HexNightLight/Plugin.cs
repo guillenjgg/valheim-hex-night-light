@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using HexNightLight.Assets.AssetBundles;
 using System.Reflection;
 
 namespace HexNightLight
@@ -21,6 +22,8 @@ namespace HexNightLight
         {
             Instance = this;
             Log = Logger;
+
+            AssetBundleHelper.Init();
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
