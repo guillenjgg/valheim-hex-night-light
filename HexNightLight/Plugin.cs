@@ -27,7 +27,7 @@ namespace HexNightLight
 
             _harmonyInstance = new Harmony(PluginGuid);
             _harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
-
+            
             Log.LogInfo($"{PluginName} v{PluginVersion} loaded.");
         }
 

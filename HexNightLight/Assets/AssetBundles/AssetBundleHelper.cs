@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HexNightLight.Core.Managers;
+using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -19,22 +20,19 @@ namespace HexNightLight.Assets.AssetBundles
 
             if (LanternAssetBundle == null)
             {
-                throw new Exception($"Failed to load AssetBundle: {AssetBundleName}");
+                Plugin.Log.LogError($"Failed to load AssetBundle: {AssetBundleName}");
+                return;
             }
 
             LanternPrefab = LanternAssetBundle.LoadAsset<GameObject>(LanternPrefabPath);
 
             if (LanternPrefab == null)
             {
-                throw new Exception($"Failed to load prefab: {LanternPrefabPath}");
+                Plugin.Log.LogError($"Failed to load prefab: {LanternPrefabPath}");
+                return;
             }
 
-            foreach (var assetName in LanternAssetBundle.GetAllAssetNames())
-            {
-                Plugin.Log.LogInfo($"AssetBundle asset: {assetName}");
-            }
-
-            LogPrefabDiagnostics(LanternPrefab);
+            CustomItemRegistry.Initialize(LanternPrefab);
 
             Plugin.Log.LogInfo("HexNightLight AssetBundle loaded.");
         }

@@ -35,6 +35,10 @@
       <HintPath>..\..\..\bepinex_mod_libs\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="assembly_utils_publicized">
+      <HintPath>..\..\..\publicized_assemblies\v1.0.20\assembly_utils_publicized.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="assembly_valheim_publicized">
       <HintPath>..\..\..\publicized_assemblies\v1.0.20\assembly_valheim_publicized.dll</HintPath>
       <Private>False</Private>
@@ -66,7 +70,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\AssetBundles\AssetBundleHelper.cs" />
-    <Compile Include="Patches\PatchTemplate.cs" />
+    <Compile Include="Core\Managers\CustomItemRegistry.cs" />
+    <Compile Include="Patches\ObjectDBCopyOtherDBPatch.cs" />
+    <Compile Include="Patches\ZNetSceneAwakePatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
