@@ -1,9 +1,7 @@
-﻿
-using HarmonyLib;
+﻿using HarmonyLib;
 using HexNightLight.Core;
 using HexNightLight.Core.Managers;
 using System.Collections.Generic;
-using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
