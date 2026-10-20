@@ -70,8 +70,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\AssetBundles\AssetBundleHelper.cs" />
+    <Compile Include="Core\LanternLightComponent.cs" />
     <Compile Include="Core\Managers\CustomItemRegistry.cs" />
     <Compile Include="Core\Managers\LanternEquipmentManager.cs" />
+    <Compile Include="Patches\EquipItemTracePatch.cs" />
     <Compile Include="Patches\LanternEquipmentPatches.cs" />
     <Compile Include="Patches\LanternVisualPatch.cs" />
     <Compile Include="Patches\ObjectDBCopyOtherDBPatch.cs" />

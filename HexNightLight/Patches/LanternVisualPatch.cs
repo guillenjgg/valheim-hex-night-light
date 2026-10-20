@@ -1,66 +1,123 @@
 ﻿
 using HarmonyLib;
+using HexNightLight.Core;
 using HexNightLight.Core.Managers;
+using System.Collections.Generic;
+using System.Net.Mail;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace HexNightLight.Patches
 {
-    [HarmonyPatch(typeof(VisEquipment), nameof(VisEquipment.UpdateEquipmentVisuals))]
+    [HarmonyPatch]
     internal static class LanternVisualPatch
     {
+        private const string LanternZdoKey = "HexNightLight_Lantern";
+
+        private static readonly AccessTools.FieldRef<VisEquipment, ZNetView> NViewField = AccessTools.FieldRefAccess<VisEquipment, ZNetView>("m_nview");
+        private static readonly AccessTools.FieldRef<Character, ZNetView> CharacterNViewField = AccessTools.FieldRefAccess<Character, ZNetView>("m_nview");
+
+        private static readonly MethodInfo AttachArmorMethod = AccessTools.Method(typeof(VisEquipment), "AttachArmor");
+        private static readonly MethodInfo UpdateLodgroupMethod = AccessTools.Method(typeof(VisEquipment), "UpdateLodgroup");
+
         private sealed class VisualState
         {
-            internal GameObject Attachment;
+            internal int CurrentHash;
+            internal List<GameObject> Attachments;
         }
 
         private static readonly ConditionalWeakTable<VisEquipment, VisualState> States = new ConditionalWeakTable<VisEquipment, VisualState>();
 
-        private static void Postfix(VisEquipment __instance)
+        [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.SetupVisEquipment))]
+        [HarmonyPostfix]
+        private static void SetupVisEquipmentPostfix(Humanoid __instance, VisEquipment visEq, bool isRagdoll)
         {
-            var player = __instance.GetComponent<Player>();
-
-            if (player == null)
+            if (isRagdoll || !__instance.IsPlayer() || visEq == null)
+            {
                 return;
+            }
 
+            var nview = CharacterNViewField(__instance);
+            var zdo = nview != null ? nview.GetZDO() : null;
+
+            if (zdo == null || !nview.IsOwner())
+            {
+                return;
+            }
+
+            var lantern = LanternEquipmentManager.GetEquippedLantern(__instance);
+            var hash = lantern?.m_dropPrefab != null
+                ? lantern.m_dropPrefab.name.GetStableHashCode()
+                : 0;
+
+            zdo.Set(LanternZdoKey, hash);
+        }
+
+        [HarmonyPatch(typeof(VisEquipment), nameof(VisEquipment.UpdateEquipmentVisuals))]
+        [HarmonyPostfix]
+        private static void UpdateEquipmentVisualsPostfix(VisEquipment __instance)
+        {
+            if (!__instance.m_isPlayer)
+            {
+                return;
+            }
+
+            var nview = NViewField(__instance);
+            var zdo = nview != null ? nview.GetZDO() : null;
+            var hash = zdo?.GetInt(LanternZdoKey, 0) ?? 0;
             var state = States.GetOrCreateValue(__instance);
-            var lantern = LanternEquipmentManager.GetEquippedLantern(player);
 
-            if (lantern == null)
+            if (state.CurrentHash == hash)
             {
-                if (state.Attachment != null)
-                    Object.Destroy(state.Attachment);
-
-                state.Attachment = null;
                 return;
             }
 
-            if (state.Attachment != null)
-                return;
-
-            var hips = __instance.transform.Find("Visual/Armature/Hips");
-
-            if (hips == null)
+            if (state.Attachments != null)
             {
-                Plugin.Log.LogError("Lantern attachment failed: Hips not found.");
-                return;
+                foreach (var attachment in state.Attachments)
+                {
+                    if (attachment != null)
+                    {
+                        Object.Destroy(attachment);
+                    }
+                }
+
+                state.Attachments = null;
             }
 
-            var prefab = ObjectDB.instance.GetItemPrefab("HexNightLight");
-            var attachmentPrefab = prefab != null ? prefab.transform.Find("attach_back/default") : null;
+            state.CurrentHash = hash;
 
-            if (attachmentPrefab == null)
+            if (hash != 0)
             {
-                Plugin.Log.LogError("Lantern attachment failed: attach_back/default not found.");
-                return;
+                state.Attachments = AttachArmorMethod?.Invoke(__instance, new object[] { hash, -1, 0 }) as List<GameObject>;
+
+                if (state.Attachments == null || state.Attachments.Count == 0)
+                {
+                    Plugin.Log.LogWarning("Lantern visual attachment failed.");
+                }
+                else
+                {
+                    foreach (var attachment in state.Attachments)
+                    {
+                        if (attachment == null)
+                        {
+                            continue;
+                        }
+
+                        var lightTransform = attachment.transform.Find("default/Point Light");
+
+                        if (lightTransform == null)
+                        {
+                            continue;
+                        }
+
+                        lightTransform.gameObject.AddComponent<LanternLightComponent>();
+                    }
+                }
             }
 
-            state.Attachment = Object.Instantiate(attachmentPrefab.gameObject, hips, false);
-            state.Attachment.transform.localPosition = Vector3.zero;
-            state.Attachment.transform.localRotation = Quaternion.identity;
-            state.Attachment.SetActive(true);
-
-            Plugin.Log.LogInfo("Lantern attached to Hips.");
+            UpdateLodgroupMethod?.Invoke(__instance, null);
         }
     }
 }

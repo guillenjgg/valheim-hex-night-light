@@ -6,26 +6,17 @@ namespace HexNightLight.Patches
 {
     internal static class LanternEquipmentHelper
     {
-        private static readonly MethodInfo SetupEquipmentMethod =
-            AccessTools.Method(typeof(Humanoid), "SetupEquipment");
-
-        private static readonly MethodInfo UpdateEquipmentVisualsMethod =
-            AccessTools.Method(typeof(VisEquipment), "UpdateEquipmentVisuals");
+        private static readonly MethodInfo SetupEquipmentMethod = AccessTools.Method(typeof(Humanoid), "SetupEquipment");
 
         internal static void RefreshEquipment(Humanoid humanoid)
         {
-            if (SetupEquipmentMethod == null || UpdateEquipmentVisualsMethod == null)
+            if (SetupEquipmentMethod == null)
             {
-                Plugin.Log.LogError("Could not resolve equipment methods.");
+                Plugin.Log.LogError("Could not resolve SetupEquipment.");
                 return;
             }
 
             SetupEquipmentMethod.Invoke(humanoid, null);
-
-            var visEquipment = humanoid.GetComponent<VisEquipment>();
-
-            if (visEquipment != null)
-                UpdateEquipmentVisualsMethod.Invoke(visEquipment, null);
         }
     }
 
