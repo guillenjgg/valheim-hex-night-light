@@ -12,6 +12,7 @@ namespace HexNightLight.Patches
     internal static class LanternVisualPatch
     {
         private const string LanternZdoKey = "HexNightLight_Lantern";
+        internal const string LanternLightEnabledZdoKey = "HexNightLight_LightEnabled";
 
         private static readonly AccessTools.FieldRef<VisEquipment, ZNetView> NViewField = AccessTools.FieldRefAccess<VisEquipment, ZNetView>("m_nview");
         private static readonly AccessTools.FieldRef<Character, ZNetView> CharacterNViewField = AccessTools.FieldRefAccess<Character, ZNetView>("m_nview");
@@ -23,6 +24,7 @@ namespace HexNightLight.Patches
         {
             internal int CurrentHash;
             internal List<GameObject> Attachments;
+            internal LanternLightComponent LightComponent;
         }
 
         private static readonly ConditionalWeakTable<VisEquipment, VisualState> States = new ConditionalWeakTable<VisEquipment, VisualState>();
@@ -68,6 +70,11 @@ namespace HexNightLight.Patches
 
             if (state.CurrentHash == hash)
             {
+                if (state.LightComponent != null)
+                {
+                    state.LightComponent.RefreshLightState();
+                }
+
                 return;
             }
 
@@ -82,40 +89,84 @@ namespace HexNightLight.Patches
                 }
 
                 state.Attachments = null;
+                state.LightComponent = null;
             }
 
-            state.CurrentHash = hash;
-
-            if (hash != 0)
+            if (hash == 0)
             {
-                state.Attachments = AttachArmorMethod?.Invoke(__instance, new object[] { hash, -1, 0 }) as List<GameObject>;
+                state.CurrentHash = 0;
+                UpdateLodgroupMethod?.Invoke(__instance, null);
+                return;
+            }
 
-                if (state.Attachments == null || state.Attachments.Count == 0)
+            var attachments = AttachArmorMethod?.Invoke(__instance, new object[] { hash, -1, 0 }) as List<GameObject>;
+
+            if (attachments == null || attachments.Count == 0)
+            {
+                Plugin.Log.LogWarning("Lantern visual attachment failed.");
+                return;
+            }
+
+            state.Attachments = attachments;
+            state.LightComponent = null;
+            state.CurrentHash = hash;
+            
+            foreach (var attachment in state.Attachments)
+            {
+                if (attachment == null)
                 {
-                    Plugin.Log.LogWarning("Lantern visual attachment failed.");
+                    continue;
                 }
-                else
+
+                var lightTransform = attachment.transform.Find("default/Point Light");
+
+                if (lightTransform == null)
                 {
-                    foreach (var attachment in state.Attachments)
-                    {
-                        if (attachment == null)
-                        {
-                            continue;
-                        }
-
-                        var lightTransform = attachment.transform.Find("default/Point Light");
-
-                        if (lightTransform == null)
-                        {
-                            continue;
-                        }
-
-                        lightTransform.gameObject.AddComponent<LanternLightComponent>();
-                    }
+                    continue;
                 }
+
+                state.LightComponent = lightTransform.gameObject.AddComponent<LanternLightComponent>();
+                state.LightComponent.Initialize(nview);
             }
 
             UpdateLodgroupMethod?.Invoke(__instance, null);
+        }
+
+        [HarmonyPatch(typeof(FejdStartup), nameof(FejdStartup.SetupCharacterPreview))]
+        [HarmonyPostfix]
+        private static void SetupCharacterPreviewPostfix(FejdStartup __instance)
+        {
+            var player = __instance.GetPreviewPlayer();
+
+            if (player == null)
+            {
+                return;
+            }
+
+            var lantern = LanternEquipmentManager.GetEquippedLantern(player);
+
+            if (lantern?.m_dropPrefab == null)
+            {
+                return;
+            }
+
+            var visEquipment = player.GetComponentInChildren<VisEquipment>();
+
+            if (visEquipment == null)
+            {
+                return;
+            }
+
+            var hash = lantern.m_dropPrefab.name.GetStableHashCode();
+            var attachments = AttachArmorMethod?.Invoke(visEquipment, new object[] { hash, -1, 0 }) as List<GameObject>;
+
+            if (attachments == null || attachments.Count == 0)
+            {
+                Plugin.Log.LogWarning("Lantern character preview attachment failed.");
+                return;
+            }
+
+            UpdateLodgroupMethod?.Invoke(visEquipment, null);
         }
     }
 }

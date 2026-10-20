@@ -3,6 +3,9 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using HexNightLight.Assets.AssetBundles;
+using HexNightLight.Core;
+using HexNightLight.Core.Managers;
+using HexNightLight.Patches;
 using System.Reflection;
 using UnityEngine;
 
@@ -23,6 +26,8 @@ namespace HexNightLight
         internal static ConfigEntry<float> LanternLightRange;
         internal static ConfigEntry<float> LanternLightIntensity;
         internal static ConfigEntry<LightShadows> LanternLightShadows;
+        internal static ConfigEntry<KeyboardShortcut> LanternLightToggleShortcut;
+        internal static bool LanternLightEnabled = true;
 
         private void Awake()
         {
@@ -32,6 +37,12 @@ namespace HexNightLight
             LanternLightRange = Config.Bind("Lantern", "LightRange", 20f, "The range of the lantern's light.");
             LanternLightIntensity = Config.Bind("Lantern", "LightIntensity", 2f, "The intensity of the lantern's light.");
             LanternLightShadows = Config.Bind("Lantern", "LightShadows", LightShadows.None, "The lantern's shadow type.");
+
+            LanternLightToggleShortcut = Config.Bind(
+                "Lantern",
+                "LightToggleShortcut",
+                new KeyboardShortcut(KeyCode.L),
+                "Hotkey to toggle the equipped lantern's light.");
 
             AssetBundleHelper.Init();
 
@@ -49,6 +60,48 @@ namespace HexNightLight
             _harmonyInstance = null;
             Instance = null;
             Log = null;
+        }
+
+        private void Update()
+        {
+            var player = Player.m_localPlayer;
+
+            if (player == null || LanternEquipmentManager.GetEquippedLantern(player) == null)
+            {
+                return;
+            }
+
+            var shortcut = LanternLightToggleShortcut.Value;
+
+            if (!ZInput.GetKeyDown(shortcut.MainKey))
+            {
+                return;
+            }
+
+            foreach (var modifier in shortcut.Modifiers)
+            {
+                if (!ZInput.GetKey(modifier))
+                {
+                    return;
+                }
+            }
+
+            var nview = player.GetComponent<ZNetView>();
+
+            if (nview == null || !nview.IsOwner())
+            {
+                return;
+            }
+
+            var zdo = nview.GetZDO();
+
+            if (zdo == null)
+            {
+                return;
+            }
+
+            LanternLightEnabled = !zdo.GetBool(LanternVisualPatch.LanternLightEnabledZdoKey, true);
+            zdo.Set(LanternVisualPatch.LanternLightEnabledZdoKey, LanternLightEnabled);
         }
     }
 }
