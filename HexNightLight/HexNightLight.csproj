@@ -17,7 +17,7 @@
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\debug_builds\HexNightLight\</OutputPath>
+    <OutputPath>..\..\..\..\..\AppData\Roaming\com.kesomannen.gale\valheim\profiles\Dev\BepInEx\plugins\HexNightLight\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -71,6 +71,9 @@
   <ItemGroup>
     <Compile Include="Assets\AssetBundles\AssetBundleHelper.cs" />
     <Compile Include="Core\Managers\CustomItemRegistry.cs" />
+    <Compile Include="Core\Managers\LanternEquipmentManager.cs" />
+    <Compile Include="Patches\LanternEquipmentPatches.cs" />
+    <Compile Include="Patches\LanternVisualPatch.cs" />
     <Compile Include="Patches\ObjectDBCopyOtherDBPatch.cs" />
     <Compile Include="Patches\ZNetSceneAwakePatch.cs" />
     <Compile Include="Plugin.cs" />

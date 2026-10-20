@@ -1,5 +1,4 @@
-﻿
-using HarmonyLib;
+﻿using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -23,44 +22,33 @@ namespace HexNightLight.Core.Managers
 
             var itemDrop = lanternPrefab.GetComponent<ItemDrop>();
 
-            if (itemDrop == null)
+            if (itemDrop == null || itemDrop.m_itemData == null || lanternPrefab.GetComponent<ZNetView>() == null)
             {
-                Plugin.Log.LogError("HexNightLight prefab is missing ItemDrop.");
+                Plugin.Log.LogError("HexNightLight prefab is missing required components.");
                 return;
             }
 
-            if (lanternPrefab.GetComponent<ZNetView>() == null)
-            {
-                Plugin.Log.LogError("HexNightLight prefab is missing ZNetView.");
-                return;
-            }
-
-            if (itemDrop.m_itemData == null)
-            {
-                Plugin.Log.LogError("HexNightLight ItemDrop has no item data.");
-                return;
-            }
+            lanternPrefab.name = "HexNightLight";
 
             itemDrop.m_itemData.m_dropPrefab = lanternPrefab;
+            itemDrop.m_itemData.m_shared.m_itemType = LanternEquipmentManager.LanternItemType;
 
             _lanternPrefab = lanternPrefab;
 
+            foreach (Transform child in lanternPrefab.transform)
+                Plugin.Log.LogInfo($"Lantern prefab child: {child.name}");
+
             Plugin.Log.LogInfo("HexNightLight registry initialized.");
         }
+
 
         internal static void RegisterPrefabs(ZNetScene scene)
         {
             if (_lanternPrefab == null || scene == null)
                 return;
 
-            if (MPrefabs == null || MNamedPrefabs == null)
-            {
-                Plugin.Log.LogError("Could not resolve ZNetScene prefab fields.");
-                return;
-            }
-
-            var prefabs = MPrefabs.GetValue(scene) as List<GameObject>;
-            var namedPrefabs = MNamedPrefabs.GetValue(scene) as Dictionary<int, GameObject>;
+            var prefabs = MPrefabs?.GetValue(scene) as List<GameObject>;
+            var namedPrefabs = MNamedPrefabs?.GetValue(scene) as Dictionary<int, GameObject>;
 
             if (prefabs == null || namedPrefabs == null)
             {
@@ -73,7 +61,13 @@ namespace HexNightLight.Core.Managers
             if (namedPrefabs.TryGetValue(hash, out var existing))
             {
                 if (existing != _lanternPrefab)
-                    Plugin.Log.LogWarning($"Prefab hash collision: {_lanternPrefab.name} ({existing.name})");
+                {
+                    Plugin.Log.LogError($"Prefab hash collision: {_lanternPrefab.name} ({existing.name})");
+                    return;
+                }
+
+                if (!prefabs.Contains(_lanternPrefab))
+                    prefabs.Add(_lanternPrefab);
 
                 return;
             }
@@ -86,26 +80,21 @@ namespace HexNightLight.Core.Managers
             Plugin.Log.LogInfo($"Registered network prefab: {_lanternPrefab.name}");
         }
 
+
         internal static void RegisterItems(ObjectDB database)
         {
-            if (_lanternPrefab == null || database == null)
-                return;
+            if (_lanternPrefab == null || database == null) return;
 
-            foreach (var prefab in database.m_items)
+            var itemDrop = _lanternPrefab.GetComponent<ItemDrop>();
+            itemDrop.m_itemData.m_dropPrefab = _lanternPrefab;
+
+            if (!database.m_items.Contains(_lanternPrefab))
             {
-                if (prefab == null)
-                    continue;
-
-                if (prefab.name == _lanternPrefab.name)
-                {
-                    if (prefab != _lanternPrefab)
-                        Plugin.Log.LogWarning($"Item name already registered: {_lanternPrefab.name}");
-
-                    return;
-                }
+                database.m_items.RemoveAll(item => item != null && item.name == _lanternPrefab.name);
+                database.m_items.Add(_lanternPrefab);
             }
 
-            database.m_items.Add(_lanternPrefab);
+            database.UpdateRegisters();
 
             Plugin.Log.LogInfo($"Registered item: {_lanternPrefab.name}");
         }
