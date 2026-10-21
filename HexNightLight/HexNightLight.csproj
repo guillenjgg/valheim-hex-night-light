@@ -79,6 +79,7 @@
     <Compile Include="Core\Managers\LanternEquipmentManager.cs" />
     <Compile Include="Core\Managers\LanternLocalizationManager.cs" />
     <Compile Include="Core\Managers\LanternRecipeRegistry.cs" />
+    <Compile Include="Patches\LanternDayNightPatch.cs" />
     <Compile Include="Patches\LanternEquipmentPatches.cs" />
     <Compile Include="Patches\LanternLocalizationPatch.cs" />
     <Compile Include="Patches\LanternVisualPatch.cs" />
