@@ -4,6 +4,7 @@ using HexNightLight.Core.Managers;
 namespace HexNightLight.Patches
 {
     [HarmonyPatch(typeof(ZNetScene), "Awake")]
+    [HarmonyPriority(Priority.First)]
     internal static class ZNetSceneAwakePatch
     {
         private static void Postfix(ZNetScene __instance)

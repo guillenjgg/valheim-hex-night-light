@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using HexNightLight.Patches;
+using UnityEngine;
 
 namespace HexNightLight.Core
 {
@@ -16,16 +17,6 @@ namespace HexNightLight.Core
             RefreshLightState();
         }
 
-        internal void SetLightEnabled(bool enabled)
-        {
-            if (_light == null)
-            {
-                return;
-            }
-
-            _light.enabled = enabled;
-        }
-
         internal void RefreshLightState()
         {
             if (_light == null || _nview == null)
@@ -40,7 +31,7 @@ namespace HexNightLight.Core
                 return;
             }
 
-            var enabled = zdo.GetBool("HexNightLight_LightEnabled", true);
+            var enabled = zdo.GetBool(LanternVisualPatch.LanternLightEnabledZdoKey, true);
 
             if (_lastEnabled == enabled)
             {

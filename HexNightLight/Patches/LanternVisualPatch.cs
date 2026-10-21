@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using HexNightLight.Core;
 using HexNightLight.Core.Managers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -19,6 +20,8 @@ namespace HexNightLight.Patches
 
         private static readonly MethodInfo AttachArmorMethod = AccessTools.Method(typeof(VisEquipment), "AttachArmor");
         private static readonly MethodInfo UpdateLodgroupMethod = AccessTools.Method(typeof(VisEquipment), "UpdateLodgroup");
+        private static readonly AccessTools.FieldRef<MaterialMan, MaterialPropertyBlock> MaterialPropertyBlockField =
+    AccessTools.FieldRefAccess<MaterialMan, MaterialPropertyBlock>("m_propertyBlock");
 
         private sealed class VisualState
         {
@@ -137,25 +140,35 @@ namespace HexNightLight.Patches
         private static void SetupCharacterPreviewPostfix(FejdStartup __instance)
         {
             var player = __instance.GetPreviewPlayer();
+            if (player == null) return;
 
-            if (player == null)
+            __instance.StartCoroutine(AttachCharacterPreviewLantern(__instance, player));
+        }
+
+        private static IEnumerator AttachCharacterPreviewLantern(FejdStartup startup, Player player)
+        {
+            while (player != null && startup.GetPreviewPlayer() == player)
             {
-                return;
+                var materialMan = Object.FindFirstObjectByType<MaterialMan>();
+
+                if (materialMan != null && MaterialPropertyBlockField(materialMan) != null)
+                {
+                    break;
+                }
+
+                yield return null;
+            }
+
+            if (player == null || startup.GetPreviewPlayer() != player)
+            {
+                yield break;
             }
 
             var lantern = LanternEquipmentManager.GetEquippedLantern(player);
-
-            if (lantern?.m_dropPrefab == null)
-            {
-                return;
-            }
+            if (lantern?.m_dropPrefab == null) yield break;
 
             var visEquipment = player.GetComponentInChildren<VisEquipment>();
-
-            if (visEquipment == null)
-            {
-                return;
-            }
+            if (visEquipment == null) yield break;
 
             var hash = lantern.m_dropPrefab.name.GetStableHashCode();
             var attachments = AttachArmorMethod?.Invoke(visEquipment, new object[] { hash, -1, 0 }) as List<GameObject>;
@@ -163,7 +176,7 @@ namespace HexNightLight.Patches
             if (attachments == null || attachments.Count == 0)
             {
                 Plugin.Log.LogWarning("Lantern character preview attachment failed.");
-                return;
+                yield break;
             }
 
             UpdateLodgroupMethod?.Invoke(visEquipment, null);
