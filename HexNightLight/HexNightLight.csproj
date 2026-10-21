@@ -35,6 +35,10 @@
       <HintPath>..\..\..\bepinex_mod_libs\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="assembly_guiutils_publicized">
+      <HintPath>..\..\..\publicized_assemblies\v1.0.20\assembly_guiutils_publicized.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="assembly_utils_publicized">
       <HintPath>..\..\..\publicized_assemblies\v1.0.20\assembly_utils_publicized.dll</HintPath>
       <Private>False</Private>
@@ -73,9 +77,11 @@
     <Compile Include="Core\LanternLightComponent.cs" />
     <Compile Include="Core\Managers\CustomItemRegistry.cs" />
     <Compile Include="Core\Managers\LanternEquipmentManager.cs" />
+    <Compile Include="Core\Managers\LanternLocalizationManager.cs" />
     <Compile Include="Core\Managers\LanternRecipeRegistry.cs" />
     <Compile Include="Core\Managers\RecipeManager.cs" />
     <Compile Include="Patches\LanternEquipmentPatches.cs" />
+    <Compile Include="Patches\LanternLocalizationPatch.cs" />
     <Compile Include="Patches\LanternShaderDebugPatch.cs" />
     <Compile Include="Patches\LanternVisualPatch.cs" />
     <Compile Include="Patches\MaterialManDebugPatch.cs" />

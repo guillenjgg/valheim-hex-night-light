@@ -33,6 +33,8 @@ namespace HexNightLight.Core.Managers
 
             itemDrop.m_itemData.m_dropPrefab = lanternPrefab;
             itemDrop.m_itemData.m_shared.m_itemType = LanternEquipmentManager.LanternItemType;
+            itemDrop.m_itemData.m_shared.m_weight = 1f;
+            itemDrop.m_itemData.m_shared.m_movementModifier = 0f;
 
             _lanternPrefab = lanternPrefab;
 
