@@ -79,12 +79,9 @@
     <Compile Include="Core\Managers\LanternEquipmentManager.cs" />
     <Compile Include="Core\Managers\LanternLocalizationManager.cs" />
     <Compile Include="Core\Managers\LanternRecipeRegistry.cs" />
-    <Compile Include="Core\Managers\RecipeManager.cs" />
     <Compile Include="Patches\LanternEquipmentPatches.cs" />
     <Compile Include="Patches\LanternLocalizationPatch.cs" />
-    <Compile Include="Patches\LanternShaderDebugPatch.cs" />
     <Compile Include="Patches\LanternVisualPatch.cs" />
-    <Compile Include="Patches\MaterialManDebugPatch.cs" />
     <Compile Include="Patches\ObjectDBCopyOtherDBPatch.cs" />
     <Compile Include="Patches\ZNetSceneAwakePatch.cs" />
     <Compile Include="Plugin.cs" />

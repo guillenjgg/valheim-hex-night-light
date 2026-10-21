@@ -106,7 +106,6 @@ namespace HexNightLight.Patches
 
             if (attachments == null || attachments.Count == 0)
             {
-                Plugin.Log.LogWarning("Lantern visual attachment failed.");
                 return;
             }
 
@@ -175,7 +174,6 @@ namespace HexNightLight.Patches
 
             if (attachments == null || attachments.Count == 0)
             {
-                Plugin.Log.LogWarning("Lantern character preview attachment failed.");
                 yield break;
             }
 

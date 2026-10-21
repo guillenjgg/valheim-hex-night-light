@@ -1,9 +1,10 @@
-﻿using HarmonyLib;
+﻿
+using HarmonyLib;
 using HexNightLight.Core.Managers;
 
 namespace HexNightLight.Patches
 {
-    [HarmonyPatch(typeof(ZNetScene), "Awake")]
+    [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake))]
     [HarmonyPriority(Priority.First)]
     internal static class ZNetSceneAwakePatch
     {

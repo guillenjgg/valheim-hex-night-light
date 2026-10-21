@@ -17,7 +17,6 @@ namespace HexNightLight.Core.Managers
         {
             if (lanternPrefab == null)
             {
-                Plugin.Log.LogError("HexNightLight prefab is null.");
                 return;
             }
 
@@ -25,7 +24,6 @@ namespace HexNightLight.Core.Managers
 
             if (itemDrop == null || itemDrop.m_itemData == null || lanternPrefab.GetComponent<ZNetView>() == null)
             {
-                Plugin.Log.LogError("HexNightLight prefab is missing required components.");
                 return;
             }
 
@@ -37,13 +35,6 @@ namespace HexNightLight.Core.Managers
             itemDrop.m_itemData.m_shared.m_movementModifier = 0f;
 
             _lanternPrefab = lanternPrefab;
-
-            foreach (Transform child in lanternPrefab.transform)
-            {
-                Plugin.Log.LogInfo($"Lantern prefab child: {child.name}");
-            }
-
-            Plugin.Log.LogInfo("HexNightLight registry initialized.");
         }
 
         internal static void RegisterPrefabs(ZNetScene scene)
@@ -58,7 +49,6 @@ namespace HexNightLight.Core.Managers
 
             if (prefabs == null || namedPrefabs == null)
             {
-                Plugin.Log.LogError("ZNetScene prefab collections are unavailable.");
                 return;
             }
 
@@ -85,8 +75,6 @@ namespace HexNightLight.Core.Managers
             {
                 namedPrefabs.Add(hash, _lanternPrefab);
             }
-
-            Plugin.Log.LogInfo($"Registered network prefab: {_lanternPrefab.name}");
         }
 
         internal static void RegisterItems(ObjectDB database)
@@ -106,10 +94,13 @@ namespace HexNightLight.Core.Managers
             {
                 database.m_items.Add(_lanternPrefab);
             }
+        }
+
+        internal static void RegisterRecipe(ObjectDB database)
+        {
+            if (database == null || _lanternPrefab == null) return;
 
             LanternRecipeRegistry.Register(database, _lanternPrefab);
-
-            Plugin.Log.LogInfo($"Registered item: {_lanternPrefab.name}");
         }
     }
 }

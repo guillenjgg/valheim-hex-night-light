@@ -1,6 +1,6 @@
 # HexNightLight
 
-A Valheim mod using BepInEx and Harmony.
+A lantern light that attaches to your hip.
 
 ## Support & Feedback
 

@@ -34,8 +34,22 @@ namespace HexNightLight
             Instance = this;
             Log = Logger;
 
-            LanternLightRange = Config.Bind("Lantern", "LightRange", 20f, "The range of the lantern's light.");
-            LanternLightIntensity = Config.Bind("Lantern", "LightIntensity", 2f, "The intensity of the lantern's light.");
+            LanternLightRange = Config.Bind(
+                "Lantern",
+                "LightRange",
+                20f,
+                new ConfigDescription(
+                    "The range of the lantern's light.",
+                    new AcceptableValueRange<float>(5f, 50f)));
+
+            LanternLightIntensity = Config.Bind(
+                "Lantern",
+                "LightIntensity",
+                2f,
+                new ConfigDescription(
+                    "The intensity of the lantern's light.",
+                    new AcceptableValueRange<float>(0f, 20f)));
+
             LanternLightShadows = Config.Bind("Lantern", "LightShadows", LightShadows.None, "The lantern's shadow type.");
 
             LanternLightToggleShortcut = Config.Bind(

@@ -24,7 +24,6 @@ namespace HexNightLight.Core.Managers
 
             if (bronze == null || surtlingCore == null || resin == null || forge == null || lantern == null)
             {
-                Plugin.Log.LogError("HexNightLight recipe registration failed: missing required prefabs.");
                 return;
             }
 
@@ -43,8 +42,6 @@ namespace HexNightLight.Core.Managers
             };
 
             database.m_recipes.Add(recipe);
-
-            Plugin.Log.LogInfo($"Registered recipe: {RecipeName}");
         }
     }
 }

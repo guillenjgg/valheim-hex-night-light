@@ -12,7 +12,6 @@ namespace HexNightLight.Patches
         {
             if (SetupEquipmentMethod == null)
             {
-                Plugin.Log.LogError("Could not resolve SetupEquipment.");
                 return;
             }
 
@@ -36,9 +35,9 @@ namespace HexNightLight.Patches
         private static bool Prefix(Humanoid __instance, ItemDrop.ItemData item, ref bool __result)
         {
             if (!LanternEquipmentManager.IsLantern(item))
+            {
                 return true;
-
-            Plugin.Log.LogInfo($"Lantern equip requested | Item: {item.m_shared.m_name} | Prefab: {item.m_dropPrefab?.name ?? "NULL"}");
+            }
 
             var previous = LanternEquipmentManager.GetEquippedLantern(__instance);
 
@@ -51,12 +50,12 @@ namespace HexNightLight.Patches
             }
 
             if (previous != null)
+            {
                 __instance.UnequipItem(previous, false);
+            }
 
             LanternEquipmentManager.SetEquippedLantern(__instance, item);
             item.m_equipped = true;
-
-            Plugin.Log.LogInfo("Lantern equipment state assigned.");
 
             LanternEquipmentHelper.RefreshEquipment(__instance);
 
@@ -87,8 +86,6 @@ namespace HexNightLight.Patches
             {
                 LanternEquipmentManager.SetEquippedLantern(__instance, null);
                 item.m_equipped = false;
-
-                Plugin.Log.LogInfo("Lantern unequipped.");
 
                 LanternEquipmentHelper.RefreshEquipment(__instance);
 
@@ -125,8 +122,6 @@ namespace HexNightLight.Patches
 
             if (lantern != null && !__instance.ContainsItem(lantern))
             {
-                Plugin.Log.LogWarning("Equipped lantern removed from inventory.");
-
                 player.UnequipItem(lantern, false);
             }
         }

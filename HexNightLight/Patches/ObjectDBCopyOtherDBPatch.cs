@@ -1,8 +1,10 @@
-﻿using HarmonyLib;
+﻿
+using HarmonyLib;
 using HexNightLight.Core.Managers;
 
 namespace HexNightLight.Patches
 {
+
     [HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.Awake))]
     internal static class ObjectDBAwakePatch
     {
@@ -10,8 +12,10 @@ namespace HexNightLight.Patches
         {
             CustomItemRegistry.RegisterItems(__instance);
             AccessTools.Method(typeof(ObjectDB), "UpdateRegisters")?.Invoke(__instance, null);
+            CustomItemRegistry.RegisterRecipe(__instance);
         }
     }
+
 
     [HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.CopyOtherDB))]
     internal static class ObjectDBCopyOtherDBPatch

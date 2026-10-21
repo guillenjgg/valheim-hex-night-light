@@ -33,8 +33,6 @@ namespace HexNightLight.Assets.AssetBundles
             }
 
             CustomItemRegistry.Initialize(LanternPrefab);
-
-            Plugin.Log.LogInfo("HexNightLight AssetBundle loaded.");
         }
 
         private static AssetBundle GetAssetBundleFromResources(string fileName)
