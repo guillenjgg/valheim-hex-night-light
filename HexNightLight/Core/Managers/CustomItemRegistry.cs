@@ -105,6 +105,8 @@ namespace HexNightLight.Core.Managers
                 database.m_items.Add(_lanternPrefab);
             }
 
+            LanternRecipeRegistry.Register(database, _lanternPrefab);
+
             Plugin.Log.LogInfo($"Registered item: {_lanternPrefab.name}");
         }
     }
