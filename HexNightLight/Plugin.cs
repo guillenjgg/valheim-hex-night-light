@@ -3,7 +3,6 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using HexNightLight.Assets.AssetBundles;
-using HexNightLight.Core;
 using HexNightLight.Core.Managers;
 using HexNightLight.Patches;
 using System.Reflection;
@@ -27,6 +26,7 @@ namespace HexNightLight
         internal static ConfigEntry<float> LanternLightIntensity;
         internal static ConfigEntry<LightShadows> LanternLightShadows;
         internal static ConfigEntry<KeyboardShortcut> LanternLightToggleShortcut;
+        internal static ConfigEntry<bool> LanternAutoToggle;
         internal static bool LanternLightEnabled = true;
 
         private void Awake()
@@ -57,6 +57,12 @@ namespace HexNightLight
                 "LightToggleShortcut",
                 new KeyboardShortcut(KeyCode.L),
                 "Hotkey to toggle the equipped lantern's light.");
+
+            LanternAutoToggle = Config.Bind(
+                "Lantern",
+                "AutoToggle",
+                false,
+                "Automatically turns the lantern on at night and off during the day.");
 
             AssetBundleHelper.Init();
 

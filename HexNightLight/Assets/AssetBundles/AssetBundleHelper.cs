@@ -44,7 +44,8 @@ namespace HexNightLight.Assets.AssetBundles
 
             if (resourceName == null)
             {
-                throw new Exception($"Embedded resource not found: {fileName}");
+                Plugin.Log.LogError($"Embedded resource not found: {fileName}");
+                return null;
             }
 
             using (var stream = assembly.GetManifestResourceStream(resourceName))
