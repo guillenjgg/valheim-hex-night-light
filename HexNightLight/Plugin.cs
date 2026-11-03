@@ -17,8 +17,7 @@ namespace HexNightLight
         private const string PluginName = "HexNightLight";
         private const string PluginVersion = "1.0.0";
 
-        private static readonly FastInvokeHandler TakeInputHandler =
-            MethodInvoker.GetHandler(AccessTools.Method(typeof(Player), "TakeInput"));
+        private static readonly FastInvokeHandler TakeInputHandler = MethodInvoker.GetHandler(AccessTools.Method(typeof(Player), "TakeInput"));
 
         private Harmony _harmonyInstance;
 
