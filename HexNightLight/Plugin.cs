@@ -17,6 +17,9 @@ namespace HexNightLight
         private const string PluginName = "HexNightLight";
         private const string PluginVersion = "1.0.0";
 
+        private static readonly FastInvokeHandler TakeInputHandler =
+            MethodInvoker.GetHandler(AccessTools.Method(typeof(Player), "TakeInput"));
+
         private Harmony _harmonyInstance;
 
         internal static ManualLogSource Log;
@@ -86,7 +89,17 @@ namespace HexNightLight
         {
             var player = Player.m_localPlayer;
 
-            if (player == null || LanternEquipmentManager.GetEquippedLantern(player) == null)
+            if (player == null)
+            {
+                return;
+            }
+
+            if (!(bool)TakeInputHandler(player, null))
+            {
+                return;
+            }
+
+            if (LanternEquipmentManager.GetEquippedLantern(player) == null)
             {
                 return;
             }
